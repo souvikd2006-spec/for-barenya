@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Barenya | A Special Journey</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@200;400;600&display=swap');
+
+        :root {
+            --gold: #d4af37;
+            --rose: #ffb7b7;
+            --bg: #050505;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            background: var(--bg);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden; /* Prevent scrolling during the experience */
+            height: 100%;
+        }
+
+        /* Floating Hearts Animation */
+        .heart {
+            position: absolute;
+            color: rgba(212, 175, 55, 0.3); /* Subtle gold hearts */
+            font-size: 20px;
+            user-select: none;
+            pointer-events: none;
+            animation: float 6s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        .section {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: opacity 1s ease, transform 1s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hidden { display: none; opacity: 0; transform: translateY(20px); }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            background: linear-gradient(to right, #fff, var(--rose));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-gold {
+            background: none;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            padding: 15px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            transition: 0.4s;
+            margin-top: 20px;
+        }
+
+        .btn-gold:hover {
+            background: var(--gold);
+            color: black;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .scratch-container {
+            position: relative;
+            width: 320px;
+            height: 200px;
+            margin: 20px auto;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .scratch-content {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.02);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            text-align: center; padding: 10px;
+        }
+
+        canvas { position: absolute; top: 0; left: 0; z-index: 5; cursor: crosshair; }
+
+        .typing-text {
+            font-size: 1.1rem;
+            color: var(--rose);
+            max-width: 80%;
+            margin-top: 20px;
+            font-style: italic;
+            min-height: 1.5em; /* Prevents layout jump */
+        }
+
+        .timer {
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+
+        /* Cursor for typing effect */
+        .cursor { border-right: 2px solid var(--rose); animation: blink 0.7s infinite; }
+        @keyframes blink { 50% { border-color: transparent; } }
+    </style>
+</head>
+<body>
+
+    <audio id="bgMusic" loop>
+        <source src="https://www.bensound.com/bensound-music/bensound-love.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="stage1" class="section">
+        <div class="timer">ESTABLISHED // 2026</div>
+        <h1>Hi, Barenya.</h1>
+        <p>This isn't a normal message. It's a journey.<br>Are you ready to see what's inside?</p>
+        <button class="btn-gold" onclick="startExperience()">Open the Path</button>
+    </div>
+
+    <div id="stage2" class="section hidden">
+        <h1>First, a Truth...</h1>
+        <p id="typewriter" class="typing-text"></p>
+        <p style="max-width: 400px; line-height: 1.8;">Barenya, you have this rare way of making everything feel more vibrant. I wanted to take a second to tell you exactly how I see you.</p>
+        <button id="stage2-btn" class="btn-gold hidden" onclick="nextStage(2, 3)">Go Ahead</button>
+    </div>
+
+    <div id="stage3" class="section hidden">
+        <h1>The Final Layer.</h1>
+        <p>I've hidden my favorite thing about you under this gold seal.<br><strong>Scratch to uncover it:</strong></p>
+        <div class="scratch-container">
+            <div class="scratch-content">
+                <h2 style="color: var(--rose); margin-bottom: 5px;">Beautiful.</h2>
+                <h2 style="color: var(--gold); margin-top: 0;">Gorgeous.</h2>
+                <p style="font-size: 0.9rem;">The prettiest girl that exists in my life.</p>
+            </div>
+            <canvas id="scratch-canvas" width="320" height="200"></canvas>
+        </div>
+        <div id="final-btn-area" style="display:none;">
+            <button class="btn-gold" onclick="nextStage(3, 4)">Finish Audit</button>
+        </div>
+    </div>
+
+    <div id="stage4" class="section hidden">
+        <h1>Happy Valentine's Day.</h1>
+        <div style="max-width: 450px; line-height: 1.8; text-align: center;">
+            <p>You aren't just a friend; you are a masterpiece. <br> Thank you for being uniquely, unapologetically <b>Barenya</b>.</p>
+            <p>Once Again Happy Valentine's Day to You Ma'am</p>
+            <p style="color: var(--gold); font-size: 1.5rem;">✨ 🏆 ✨</p>
+        </div>
+        <p style="font-size: 0.7rem; opacity: 0.5; margin-top: 50px;">- End of Experience -</p>
+    </div>
+
+    <script>
+        // BACKGROUND MUSIC & INITIALIZATION
+        function startExperience() {
+            const music = document.getElementById('bgMusic');
+            music.volume = 0.4;
+            music.play().catch(() => console.log("Audio blocked by browser."));
+            nextStage(1, 2);
+            createHearts();
+        }
+
+        // NAVIGATION LOGIC
+        function nextStage(current, next) {
+            const currEl = document.getElementById('stage' + current);
+            const nextEl = document.getElementById('stage' + next);
+            
+            currEl.style.opacity = '0';
+            setTimeout(() => {
+                currEl.classList.add('hidden');
+                currEl.style.display = 'none';
+                nextEl.style.display = 'flex';
+                setTimeout(() => {
+                    nextEl.classList.remove('hidden');
+                    nextEl.style.opacity = '1';
+                    if (next === 2) startTyping();
+                    if (next === 3) initScratch();
+                }, 50);
+            }, 1000);
+        }
+
+        // TYPING EFFECT
+        function startTyping() {
+            const text = "“Some people make the world better just by existing in it.”";
+            const target = document.getElementById('typewriter');
+            let i = 0;
+            target.innerHTML = '<span class="cursor"></span>';
+
+            function type() {
+                if (i < text.length) {
+                    target.innerHTML = text.substring(0, i + 1) + '<span class="cursor"></span>';
+                    i++;
+                    setTimeout(type, 70);
+                } else {
+                    document.getElementById('stage2-btn').classList.remove('hidden');
+                    document.getElementById('stage2-btn').style.opacity = '1';
+                }
+            }
+            type();
+        }
+
+        // FLOATING HEARTS LOGIC
+        function createHearts() {
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = '❤';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                document.body.appendChild(heart);
+                setTimeout(() => heart.remove(), 6000);
+            }, 500);
+        }
+
+        // SCRATCH CARD LOGIC
+        function initScratch() {
+            const canvas = document.getElementById('scratch-canvas');
+            const ctx = canvas.getContext('2d');
+            let isDrawing = false;
+
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, 320, 200);
+            ctx.strokeStyle = '#d4af37';
+            ctx.lineWidth = 1;
+            for(let i=0; i<30; i++) {
+                ctx.beginPath();
+                ctx.moveTo(Math.random()*320, Math.random()*200);
+                ctx.lineTo(Math.random()*320, Math.random()*200);
+                ctx.stroke();
+            }
+            ctx.font = "14px Arial";
+            ctx.fillStyle = "#d4af37";
+            ctx.textAlign = "center";
+            ctx.fillText("SCRATCH TO REVEAL THE TRUTH", 160, 105);
+
+            function scratch(e) {
+                if (!isDrawing) return;
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+                const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.arc(x, y, 25, 0, Math.PI * 2);
+                ctx.fill();
+                checkProgress();
+            }
+
+            function checkProgress() {
+                const imageData = ctx.getImageData(0, 0, 320, 200);
+                let count = 0;
+                for (let i = 3; i < imageData.data.length; i += 4) {
+                    if (imageData.data[i] === 0) count++;
+                }
+                if (count > (imageData.data.length / 4) * 0.7) {
+                    canvas.style.transition = "opacity 1s";
+                    canvas.style.opacity = "0";
+                    setTimeout(() => {
+                        canvas.style.display = "none";
+                        document.getElementById('final-btn-area').style.display = 'block';
+                        triggerConfetti();
+                    }, 500);
+                }
+            }
+
+            canvas.addEventListener('mousedown', () => isDrawing = true);
+            canvas.addEventListener('touchstart', (e) => { isDrawing = true; e.preventDefault(); });
+            window.addEventListener('mouseup', () => isDrawing = false);
+            window.addEventListener('touchend', () => isDrawing = false);
+            canvas.addEventListener('mousemove', scratch);
+            canvas.addEventListener('touchmove', (e) => { scratch(e); e.preventDefault(); });
+        }
+
+        function triggerConfetti() {
+            var end = Date.now() + (2 * 1000);
+            var colors = ['#d4af37', '#ffb7b7', '#ffffff'];
+            (function frame() {
+                confetti({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0 }, colors: colors });
+                confetti({ particleCount: 2, angle: 120, spread: 55, origin: { x: 1 }, colors: colors });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+        }
+    </script>
+</body>
+</html>
